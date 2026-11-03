@@ -1,0 +1,315 @@
+/* ------------------------------------------------------------------
+   Grifo: papel, tinta e marca-texto.
+   Acento único de interface: --grifo. Vermelho é só "caneta de correção"
+   (atraso e erro). As demais cores identificam disciplinas.
+------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+  --paper: #f3f4ec;
+  --sheet: #fbfbf6;
+  --ink: #15180f;
+  --ink-2: #4b5042;
+  --ink-3: #6c7162;
+  --rule: #d3d6c8;
+  --rule-soft: #e4e6da;
+  --pen: #c4161c;
+  --grifo: #e6f52b;
+  --on-mark: #15180f;
+
+  --hl-amarelo: #a9b500;
+  --hl-rosa: #e8479a;
+  --hl-laranja: #e87a10;
+  --hl-turquesa: #009e9c;
+  --hl-azul: #2e7be6;
+  --hl-verde: #2f9e46;
+
+  --seq-0: #e6e8dc;
+  --seq-1: #dde58f;
+  --seq-2: #c3cf3b;
+  --seq-3: #8e9a12;
+  --seq-4: #55600a;
+
+  --f-display: var(--font-archivo), 'Arial Narrow', sans-serif;
+  --f-body: var(--font-atkinson), system-ui, sans-serif;
+  --f-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 72px;
+  --gutter: clamp(16px, 3.4vw, 48px);
+
+  --r: 2px;
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --t-fast: 120ms;
+  --t-mid: 240ms;
+  --t-slow: 520ms;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #11130d;
+  --sheet: #1a1d14;
+  --ink: #eff1e4;
+  --ink-2: #b6baa8;
+  --ink-3: #8f9483;
+  --rule: #2e3225;
+  --rule-soft: #22251a;
+  --pen: #ff7a6e;
+
+  --hl-amarelo: #8f9d00;
+  --hl-rosa: #ec4f9c;
+  --hl-laranja: #d6760f;
+  --hl-turquesa: #0fa5a2;
+  --hl-azul: #3f8aeb;
+  --hl-verde: #36a64f;
+
+  --seq-0: #1e2117;
+  --seq-1: #3d4414;
+  --seq-2: #6b7716;
+  --seq-3: #a3b31b;
+  --seq-4: #e6f52b;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+  margin: 0;
+  padding: 0;
+}
+ul,
+ol {
+  list-style: none;
+}
+a {
+  color: inherit;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--grifo);
+  color: var(--on-mark);
+  transform: translateY(-200%);
+}
+.skip:focus {
+  transform: none;
+}
+
+/* ---------- a marca: o gesto de grifar ---------- */
+.mark {
+  --mark: var(--grifo);
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  white-space: nowrap;
+  transition: color var(--t-mid) linear var(--mark-delay, 0ms);
+}
+.mark::before {
+  content: '';
+  position: absolute;
+  inset: 0.04em -0.12em 0.02em;
+  z-index: -1;
+  background: var(--mark);
+  border-radius: 1px 4px 2px 5px;
+  transform: skewX(-5deg) scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--t-slow) var(--ease) var(--mark-delay, 0ms);
+}
+.mark.is-on {
+  color: var(--on-mark);
+}
+.mark.is-on::before {
+  transform: skewX(-5deg) scaleX(1);
+}
+
+.wordmark {
+  font-family: var(--f-display);
+  font-stretch: 75%;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+/* ---------- controles compartilhados ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  border-radius: var(--r);
+  background: transparent;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--t-fast) linear, color var(--t-fast) linear, transform var(--t-fast) var(--ease);
+}
+.btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn--primary {
+  background: var(--grifo);
+  border-color: var(--on-mark);
+  color: var(--on-mark);
+}
+.btn--primary:hover {
+  background: var(--on-mark);
+  color: var(--grifo);
+}
+.btn--quiet {
+  border-color: transparent;
+  color: var(--ink-2);
+}
+.btn--quiet:hover {
+  background: var(--rule-soft);
+  color: var(--ink);
+}
+.btn--danger {
+  border-color: var(--pen);
+  color: var(--pen);
+}
+.btn--danger:hover {
+  background: var(--pen);
+  color: var(--paper);
+}
+
+.field {
+  display: grid;
+  gap: var(--s-1);
+}
+.field > span,
+.field > label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--ink-3);
+  border-radius: 0;
+  background: transparent;
+  transition: border-color var(--t-fast) linear;
+}
+.input:hover {
+  border-bottom-color: var(--ink);
+}
+.input:focus {
+  outline: none;
+  border-bottom: 2px solid var(--ink);
+  background: var(--rule-soft);
+}
+select.input {
+  padding-right: 8px;
+}
+select.input option {
+  background: var(--sheet);
+  color: var(--ink);
+}
+.field-error {
+  font-size: 14px;
+  color: var(--pen);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
